@@ -1,0 +1,2 @@
+feature_set,model,macro_f1,kappa
+all,LogisticRegression,0.7314247391170104,0.8057474087719326
