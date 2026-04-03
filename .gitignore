@@ -1,0 +1,6 @@
+outputs/
+data/
+*.npy
+*.csv
+__pycache__/
+.DS_Store

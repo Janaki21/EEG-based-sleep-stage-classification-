@@ -34,19 +34,33 @@ CONFUSION_MATRIX_PATH = OUTPUT_DIR / "figures" / "best_model_confusion_matrix.pn
 # -------------------------
 @st.cache_data
 def load_numpy_data():
-    X = np.load(OUTPUT_DIR / "X_epochs.npy")
-    y = np.load(OUTPUT_DIR / "y_labels.npy")
+    x_path = OUTPUT_DIR / "X_epochs.npy"
+    y_path = OUTPUT_DIR / "y_labels.npy"
+
+    if not x_path.exists():
+        raise FileNotFoundError(f"Missing file: {x_path}")
+    if not y_path.exists():
+        raise FileNotFoundError(f"Missing file: {y_path}")
+
+    X = np.load(x_path, allow_pickle=True)
+    y = np.load(y_path, allow_pickle=True)
     return X, y
 
 
 @st.cache_data
 def load_results():
-    return pd.read_csv(OUTPUT_DIR / "model_results.csv")
+    results_path = OUTPUT_DIR / "model_results.csv"
+    if not results_path.exists():
+        raise FileNotFoundError(f"Missing file: {results_path}")
+    return pd.read_csv(results_path)
 
 
 @st.cache_resource
 def load_model():
-    return joblib.load(OUTPUT_DIR / "best_model.joblib")
+    model_path = OUTPUT_DIR / "best_model.joblib"
+    if not model_path.exists():
+        raise FileNotFoundError(f"Missing file: {model_path}")
+    return joblib.load(model_path)
 
 
 def render_header():
@@ -68,7 +82,7 @@ This system analyzes EEG signals and predicts brain states using:
 
 def plot_dataset_distribution(y):
     counts = pd.Series(y).value_counts().sort_index()
-    labels = [STAGE_MAP[i] for i in counts.index]
+    labels = [STAGE_MAP.get(int(i), str(i)) for i in counts.index]
 
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.bar(labels, counts.values)
@@ -200,6 +214,14 @@ Our work shows that **complexity features add important information**, which imp
 def render_demo_tab(X, model):
     st.subheader("🎬 Interactive Brain-State Demo")
 
+    if X is None or len(X) == 0:
+        st.error("EEG samples are not available.")
+        return
+
+    if model is None:
+        st.error("Model is not available.")
+        return
+
     left, right = st.columns([1, 1])
 
     with left:
@@ -281,13 +303,22 @@ def render_results_tab(y, results_df):
 def main():
     render_header()
 
+    X = None
+    y = None
+    results_df = None
+    model = None
+
     try:
         X, y = load_numpy_data()
         results_df = load_results()
         model = load_model()
     except Exception as e:
         st.error(f"Failed to load project files: {e}")
-        st.stop()
+        st.info(
+            "Make sure these files exist inside OUTPUT_DIR: "
+            "X_epochs.npy, y_labels.npy, model_results.csv, best_model.joblib"
+        )
+        return
 
     tab1, tab2, tab3 = st.tabs(["📘 Overview", "🎬 Live Demo", "📊 Results"])
 
