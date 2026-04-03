@@ -1,204 +1,98 @@
-# 🧠 EEG-Based Sleep Stage Classification using Neural Complexity
+# EEG Sleep Stage Classification using Interpretable Feature Learning
 
-##  Overview
+## Overview
 
-This project presents an end-to-end system for **sleep stage classification from EEG signals**, incorporating **neural complexity measures** alongside traditional handcrafted features.
+This project presents a research-oriented pipeline for automatic sleep stage classification from single-channel EEG signals. The focus is on evaluating interpretable feature-based models and comparing them with a deep learning baseline under a subject-independent setting.
 
-Unlike traditional approaches that rely only on frequency-based features, this work introduces **neural complexity measures** (entropy, fractals) to capture deeper structure in brain activity.
-
-👉 **Key Insight:**
-Brain states are not defined only by frequency patterns — they also differ in signal complexity.
+The work systematically analyzes statistical, spectral, and nonlinear complexity features, with emphasis on understanding their contribution to classification performance and generalization across subjects.
 
 ---
 
-##  Problem Statement
+## Research Objective
 
-Traditional EEG classification methods rely primarily on spectral (frequency) features.
+The primary goal is to investigate:
 
-However:
-
-> Can incorporating **signal complexity** improve classification performance and reliability?
-
----
-
-## ⚙️ Methodology
-
-###  Pipeline
-
-```
-Raw EEG Signal
-      ↓
-Segmentation (30s epochs)
-      ↓
-Feature Extraction
-  ├── Statistical Features
-  ├── Spectral Features
-  └── Complexity Features ⭐
-      ↓
-Machine Learning Models
-      ↓
-Sleep Stage Prediction
-```
+- Whether nonlinear complexity features improve inter-subject generalization compared to traditional spectral features  
+- Whether combining multiple feature families yields better performance than individual feature sets  
+- Whether interpretable machine learning models can remain competitive with a simple deep learning baseline  
 
 ---
 
-##  Feature Engineering
+## Key Contributions
 
-### Statistical
+- Feature-based EEG sleep stage classification using:
+  - Statistical features  
+  - Spectral features  
+  - Nonlinear complexity features  
 
-* Mean, variance, skewness
-* Hjorth parameters
+- Comparative evaluation across feature families and their combinations  
 
-### Spectral
+- Subject-independent evaluation using Stratified Group K-Fold cross-validation  
 
-* Delta, Theta, Alpha, Beta power
-* Spectral entropy
-* Peak frequency
-* Spectral edge frequency (SEF95)
+- Repeated cross-validation for robust performance estimation  
 
-### Complexity (Core Contribution)
+- Statistical validation using:
+  - Wilcoxon signed-rank test  
+  - Effect size estimation  
+  - Confidence intervals  
 
-* Sample entropy
-* Approximate entropy
-* Permutation entropy
-* Higuchi fractal dimension
-* Lempel-Ziv complexity
+- Detailed error analysis including:
+  - Confusion matrix analysis  
+  - Misclassification patterns  
+  - N1-stage difficulty analysis  
 
-👉 These capture **structure, irregularity, and information richness** of EEG signals.
+- Feature importance analysis:
+  - Model-based importance  
+  - Permutation importance  
+  - Domain-level contribution  
 
----
+- Deep learning baseline using a lightweight CNN for comparison  
 
-## 🤖 Models Used
-
-* Logistic Regression
-* Random Forest
-
-Validation:
-
-* **Stratified Group K-Fold** (no subject leakage)
-
-Metrics:
-
-* Macro F1
-* Balanced Accuracy
-* **Cohen’s Kappa**
+- Automated generation of:
+  - Paper-ready tables  
+  - Publication-quality figures  
 
 ---
 
-## 📊 Results
+## Dataset
 
-### 🔥 Key Finding
+The pipeline is designed for publicly available EEG sleep datasets with:
 
-| Feature Set           | Macro F1 | Kappa    |
-| --------------------- | -------- | -------- |
-| Statistical           | 0.59     | 0.65     |
-| Spectral              | 0.64     | 0.64     |
-| Complexity            | 0.63     | 0.74     |
-| Stat + Complexity     | 0.70     | 0.77     |
-| Spectral + Complexity | 0.72     | 0.80     |
-| **All Features**      | **0.73** | **0.81** |
+- Single-channel EEG (e.g., Fpz-Cz)
+- 30-second epochs
+- Multi-class sleep staging (Wake, N1, N2, N3, REM)
 
-👉 Adding complexity features significantly improves performance.
+Processed data and extracted features are stored locally in the `outputs/` directory.
 
 ---
 
-##  Visual Results
+## Project Structure
 
-![Model Comparison](assets/model_comparison_macro_f1.png)
-![Confusion Matrix](assets/best_model_confusion_matrix.png)
-![Feature Importance](assets/feature_importance.png)
-
----
-
-## 🎬 Interactive Demo
-
-Run:
-
-```bash
-streamlit run app.py
-```
-
-### Features
-
-* EEG visualization
-* Brain state prediction
-* Confidence scores
-* Explanation panel (feature insights)
-
----
-
-## 🧠 Example Demo Output
-
-```
-Input: EEG Signal Segment
-Prediction: N2 Sleep
-Confidence: 0.82
-
-Top Features:
-- spectral_entropy
-- sample_entropy
-- delta_power
-```
-
----
-
-## 💡 Key Contributions
-
-* Introduced **complexity-based EEG representation**
-* Demonstrated performance gain over traditional features
-* Built **end-to-end pipeline + interactive UI**
-* Ensured **rigorous validation (no data leakage)**
-
----
-
-## 📦 Project Structure
-
-```
+```text
 sleep_eeg_project/
-│
-├── app.py                # Streamlit UI
-├── preprocess.py        # EEG preprocessing
-├── features.py          # Feature extraction
-├── train_eval.py        # Model training
-├── plots.py             # Visualization
-├── config.py            # Configuration
-│
-├── outputs/             # Generated results
-├── data/                # Dataset (excluded)
-│
+├── data/
+├── outputs/
+│   ├── archive_raw/
+│   ├── figures/
+│   │   ├── paper_main/
+│   │   └── paper_reference/
+│   ├── tables/
+│   │   ├── paper_main/
+│   │   └── paper_reference/
+│   ├── models/
+│   └── cache/
+├── preprocess.py
+├── features.py
+├── train_eval.py
+├── deep_baseline.py
+├── error_analysis.py
+├── dataset_report.py
+├── plots.py
+├── make_paper_tables.py
+├── organize_outputs.py
+├── run_phase4.py
+├── run_phase5.py
+├── config.py
+├── utils.py
+├── requirements.txt
 └── README.md
-```
-
----
-
-##  Future Work
-
-* Larger datasets
-* Deep learning models
-* Quantum kernel methods (QSVC)
-* Real-time EEG systems
-
----
-
-##  Conclusion
-
-> Brain states are complex dynamical systems, not just frequency patterns.
-
-By incorporating complexity:
-
-* Better classification
-* Deeper understanding of neural signals
-
----
-
-## 📜 License
-
-MIT License
-
----
-
-## 👤 Author
-
-**Janaki Nageshwaran**
-AI & Neuroscience Enthusiast
-Focus: Consciousness, AGI, Neural Systems
